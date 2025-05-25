@@ -6,6 +6,7 @@ import os
 
 app = FastAPI()
 
+# Enable CORS for all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,9 +14,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Correct way to load JSON once
 file_path = os.path.join(os.path.dirname(__file__), "students.json")
 with open(file_path, "r") as f:
-    student_data = json.load(f)
+    data = json.load(f)
 
 @app.get("/")
 def root():
@@ -23,6 +25,7 @@ def root():
 
 @app.get("/api")
 def get_marks(name: List[str] = []):
-    name_to_marks = {student["name"].lower(): student["marks"] for student in student_data}
+    # ✅ Use lowercase mapping and lowercase lookup
+    name_to_marks = {student["name"].lower(): student["marks"] for student in data}
     result = [name_to_marks.get(n.lower(), None) for n in name]
     return {"marks": result}
