@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import json
+import os
 
 app = FastAPI()
 
@@ -13,12 +14,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load student data
-with open("students.json") as f:
+# Load student data with proper path handling
+file_path = os.path.join(os.path.dirname(__file__), "students.json")
+with open(file_path, "r") as f:
     student_data = json.load(f)
 
 @app.get("/api")
 def get_marks(name: List[str] = []):
-    name_to_marks = {student["name"]: student["marks"] for student in student_data}
-    result = [name_to_marks.get(n, None) for n in name]
+    # Make matching case-insensitive
+    name_to_marks = {student["name"].lower(): student["marks"] for student in student_data}
+    result = [name_to_marks.get(n.lower(), None) for n in name]
     return {"marks": result}
