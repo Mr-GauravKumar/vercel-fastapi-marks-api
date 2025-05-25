@@ -14,18 +14,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Correct way to load JSON once
+# Load student data from file
 file_path = os.path.join(os.path.dirname(__file__), "students.json")
 with open(file_path, "r") as f:
     data = json.load(f)
 
+# Root route (optional)
 @app.get("/")
 def root():
     return {"message": "Welcome to Student Marks API"}
 
+# API endpoint
 @app.get("/api")
 def get_marks(name: List[str] = []):
-    # ✅ Use lowercase mapping and lowercase lookup
     name_to_marks = {student["name"].lower(): student["marks"] for student in data}
     result = [name_to_marks.get(n.lower(), None) for n in name]
     return {"marks": result}
